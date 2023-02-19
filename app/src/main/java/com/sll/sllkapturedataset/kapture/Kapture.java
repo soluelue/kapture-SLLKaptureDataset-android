@@ -3,7 +3,7 @@ package com.sll.sllkapturedataset.kapture;
 public enum Kapture {
 
     RECORD_CAMERA(0, "records_camera", "# timestamp, device_id, image_path")
-    ,RECORD_DEPTH(1, "records_depth","# timestamp, device_id, depth_map_path") // colmap -> 안드로이드 측에서는 만들지 못할거 같음
+    ,RECORD_DEPTH(1, "records_depth","# timestamp, device_id, depth_map_path") //
     ,RECORD_LIDAR(2, "records_lidar","# timestamp, device_id, point_cloud_path") // lidar data 는 after collecting
     ,RECORD_GNSS(3, "records_gnss","# timestamp, device_id, x, y, z, utc, dop")
     ,RIGS(3, "rigs","# rig_id, sensor_id, qw, qx, qy, qz, tx, ty, tz")
