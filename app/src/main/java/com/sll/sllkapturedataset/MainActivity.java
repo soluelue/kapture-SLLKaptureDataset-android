@@ -19,22 +19,29 @@ import com.sll.arviewer.ar.common.samplerender.OnUpdateListener;
 import com.sll.arviewer.ar.common.samplerender.arcore.DepthData;
 import com.sll.estimation.utils.Permissions;
 import com.sll.sllkapturedataset.kapture.Kapture;
+import com.sll.sllkapturedataset.kapture.io.GlobalPref;
 import com.sll.sllkapturedataset.kapture.io.KIOManager;
+import com.sll.sllkapturedataset.utils.DateUtils;
+import com.sll.sllkapturedataset.utils.FileUtils;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity implements OnUpdateListener {
 
     //setting K//
     private final float PCD_CONFIDENCE = 0.3f; //pcd confidence over 30%
 
+    private AtomicBoolean isStart = new AtomicBoolean(false);
 
     /// setting AR
     private ARViewModel viewModel = null;
     private ARFragment arFragment = null;
     private CameraIntrinsics cameraIntrinsics = null;
+
 
     private KIOManager kioManager = null;
 
@@ -48,21 +55,18 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener 
     }
 
     private void initPermissions(){
-        Permissions.checkPermission(getApplicationContext(), this, new Permissions.OnPermissionListener() {
-            @Override
-            public void onPermissionListener(boolean isAllSuccess) {
-                if(isAllSuccess){
-                    //todo: start code
-                    init();
-                }else{
-                    Toast.makeText(getApplicationContext(), "Setting Permission yourself", Toast.LENGTH_SHORT).show();
-                }
+        Permissions.checkPermission(getApplicationContext(), this, isAllSuccess -> {
+            if(isAllSuccess){
+                //todo: start code
+                FileUtils.createRootPath();
+                init();
+            }else{
+                Toast.makeText(getApplicationContext(), "Setting Permission yourself", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void init(){
-        initKaptureSetting();
         initARView();
     }
 
@@ -75,25 +79,71 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener 
         viewModel = new ViewModelProvider(this).get(ARViewModel.class);
     }
 
-    private void initKaptureSetting(){
-        //create using kapture file
-        ArrayList<Kapture> useKaptureArr = new ArrayList<>();
-        useKaptureArr.add(Kapture.RECORD_CAMERA);
-        useKaptureArr.add(Kapture.RECORD_DEPTH);
-        useKaptureArr.add(Kapture.RECORD_LIDAR);
-        useKaptureArr.add(Kapture.RIGS);
-        useKaptureArr.add(Kapture.SENSORS);
-        useKaptureArr.add(Kapture.TRAJECTORIES);
-        useKaptureArr.add(Kapture.GPS_QUERY_MAP);
-        useKaptureArr.add(Kapture.SESSION);
 
-        kioManager = new KIOManager("", useKaptureArr);
+    private void initKaptureSetting(File recordDirPath){
+        boolean[] useKaptureDataset = new boolean[Kapture.values().length];
+        for(int i = 0; i < Kapture.values().length; i ++){
+            Kapture kapture = Kapture.values()[i];
+            useKaptureDataset[i] = true;
+            if(kapture.isOptional()){
+                if((kapture.getIdx() == Kapture.RECORD_DEPTH.getIdx())
+                        && !GlobalPref.isUseDepth()){
+                    useKaptureDataset[i] = false;
+                }
+
+                if((kapture.getIdx() == Kapture.RECORD_LIDAR.getIdx())
+                        && !GlobalPref.isUseLidar()){
+                    useKaptureDataset[i] = false;
+                }
+
+                if((kapture.getIdx() == Kapture.RECORD_GNSS.getIdx())
+                        && !GlobalPref.isUseGNSS()){
+                    useKaptureDataset[i] = false;
+                }
+
+                if((kapture.getIdx() == Kapture.RECORD_WIFI.getIdx())
+                        && !GlobalPref.isUseWiFi()){
+                    useKaptureDataset[i] = false;
+                }
+            }
+        }
+
+        kioManager = new KIOManager(recordDirPath, useKaptureDataset);
     }
+
+
+    private void collectController(){
+
+        if(isStart.get()){
+            stopCollectDataset();
+            isStart.set(false);
+        } else {
+            isStart.set(true);
+            startCollectDataset();
+        }
+
+    }
+
+    private void startCollectDataset(){
+        //Kapture record
+        File recordDirPath = new File(FileUtils.ROOT_DIR_NAME,
+                DateUtils.getMM_dd_HH_mm_ss_SSS(System.currentTimeMillis()));
+        FileUtils.createRecordPath(recordDirPath);
+
+        initKaptureSetting(recordDirPath);
+
+    }
+
+    private void stopCollectDataset(){
+        kioManager.stopRecords();
+    }
+
 
 
     @Override
     public void onUpdate(Frame frame) {
         if(viewModel.getSession() == null) return;
+        if(!isStart.get()) return;
 
         //using primary index key
         long timestamp = System.currentTimeMillis();

@@ -1,10 +1,19 @@
 package com.sll.sllkapturedataset.kapture.io;
 
 
+import androidx.annotation.NonNull;
+
 import com.sll.estimation.utils.CSVWriter;
 import com.sll.sllkapturedataset.kapture.Kapture;
+import com.sll.sllkapturedataset.utils.FileUtils;
 
-import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 /**
  * sensors/                         # Sensor data root path
@@ -29,7 +38,189 @@ import java.util.ArrayList;
 
 public class KIOManager {
 
-    public KIOManager(String rootPath, ArrayList<Kapture> kaptures){
+    private final String FILE_EXE = ".txt";
+    private final String KAPTURE_HEADER = "# kapture format: 1.1";
+
+    private final String SUBDIR_DEPTH = "depth";
+    private final String SUBDIR_IMAGES = "images";
+    private final String SUBDIR_LIDAR = "pcd";
+
+    private boolean[] useKaptures;
+
+    private File recordPath;
+
+    private File recordSubDepthPath = null;
+    private File recordSubImagesPath = null;
+    private File recordSubLidarPath = null;
+
+    private CSVWriter[] kaptureWriters = null;
+
+    public KIOManager(File recordPath, boolean[] useKaptures){
+        this.recordPath = recordPath;
+        this.useKaptures = useKaptures;
+
+        createSubDirectory();
+        createFiles();
+    }
+
+    private void createSubDirectory(){
+
+        this.recordSubImagesPath = new File(this.recordPath, SUBDIR_IMAGES);
+        FileUtils.createRecordPath(this.recordSubImagesPath);
+
+        // optional folder
+        if(this.useKaptures[Kapture.RECORD_DEPTH.getIdx()]){
+            this.recordSubDepthPath = new File(this.recordPath, SUBDIR_DEPTH);
+            FileUtils.createRecordPath(this.recordSubDepthPath);
+        }
+
+        // optional folder
+        if(this.useKaptures[Kapture.RECORD_LIDAR.getIdx()]){
+            this.recordSubLidarPath = new File(this.recordPath, SUBDIR_LIDAR);
+            FileUtils.createRecordPath(this.recordSubLidarPath);
+        }
+    }
+
+    private void createFiles(){
+        kaptureWriters = new CSVWriter[Kapture.values().length];
+        for(int i = 0; i < Kapture.values().length; i ++){
+            if(useKaptures[i]){
+                Kapture k = Kapture.values()[i];
+                String filePath = this.recordPath.getAbsolutePath()
+                        + File.separator
+                        + k.getTitle()
+                        + FILE_EXE;
+                StringBuilder headerSb = new StringBuilder();
+                headerSb.append(KAPTURE_HEADER);
+                headerSb.append(System.lineSeparator());
+                headerSb.append(k.getHeader());
+
+                CSVWriter writer = new CSVWriter(filePath, headerSb.toString(), true);
+                this.kaptureWriters[i] = writer;
+            }else{
+                this.kaptureWriters[i] = null;
+            }
+        }
+    }
+
+    public File getRecordSubDepthPath() {
+        return recordSubDepthPath;
+    }
+
+    public File getRecordSubImagesPath() {
+        return recordSubImagesPath;
+    }
+
+    public File getRecordSubLidarPath() {
+        return recordSubLidarPath;
+    }
+
+    public void stopRecords(){
+        for(int i = 0 ; i < Kapture.values().length; i ++){
+            CSVWriter writer = this.kaptureWriters[i];
+            if(writer != null){
+                writer.close();
+                //todo: checking
+                this.kaptureWriters[i] = null;
+            }
+        }
 
     }
+
+    public void recordSensors(@NonNull String str){
+        records(Kapture.SENSORS, str);
+    }
+
+    public void recordRigs(@NonNull String str){
+        records(Kapture.RIGS, str);
+    }
+
+    public void recordTrajectories(@NonNull String str){
+        records(Kapture.TRAJECTORIES, str);
+    }
+
+    public void recordCamera(@NonNull String str){
+        records(Kapture.RECORD_CAMERA, str);
+    }
+
+    public void recordDepth(@NonNull String str){
+        records(Kapture.RECORD_DEPTH, str);
+    }
+
+    public void recordGNSS(@NonNull String str){
+        records(Kapture.RECORD_GNSS, str);
+    }
+
+    public void recordLidar(@NonNull String str){
+        records(Kapture.RECORD_LIDAR, str);
+    }
+
+    public void recordWiFi(@NonNull String str){
+        records(Kapture.RECORD_WIFI, str);
+    }
+
+    public void recordPositionQueryMap(@NonNull String str){
+        records(Kapture.POSITION_QUERY_MAP, str);
+    }
+
+    public void recordSession(@NonNull String str){
+        records(Kapture.SESSION, str);
+    }
+
+
+    private void records(Kapture kapture, @NonNull String str){
+        if(this.useKaptures[kapture.getIdx()]){
+            CSVWriter writer = this.kaptureWriters[kapture.getIdx()];
+            if(writer != null){
+                writer.write(str);
+            }
+        }
+    }
+
+    public static void recordDepthFile(File recordFile, ByteBuffer buf){
+        FileChannel wChannel;
+        if(!recordFile.exists()){
+            try {
+                wChannel = new FileOutputStream(recordFile, false).getChannel();
+                wChannel.write(buf);
+                wChannel.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void recordLidarFile(File recordFile, int lidarCount, String info){
+
+        FileWriter fileWriter = null;
+        BufferedWriter bfWriter = null;
+
+        if(!recordFile.exists()){
+            try {
+                recordFile.createNewFile();
+                fileWriter = new FileWriter(recordFile,true);
+                bfWriter = new BufferedWriter(fileWriter);
+                //Write the header:
+                bfWriter.write(".PCD v.7 - Point Cloud Data file format\n" +
+                        "VERSION .7\n" +
+                        "FIELDS x y z\n" +
+                        "SIZE 4 4 4\n" +  //you only have 3 values xyz
+                        "TYPE F F F\n" +
+                        "COUNT 1 1 1\n" +
+                        "WIDTH "+ lidarCount + "\n" +
+                        "HEIGHT 1\n" +
+                        "VIEWPOINT 0 0 0 1 0 0 0\n" +
+                        "POINTS " + lidarCount + "\n" +
+                        "DATA ascii \n");
+                bfWriter.newLine();
+                bfWriter.write(info);
+                bfWriter.flush();
+                fileWriter.close();
+                bfWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }
