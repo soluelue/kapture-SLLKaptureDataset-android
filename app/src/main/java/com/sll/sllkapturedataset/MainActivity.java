@@ -3,10 +3,14 @@ package com.sll.sllkapturedataset;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Pair;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.Camera;
 import com.google.ar.core.CameraIntrinsics;
@@ -32,6 +36,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity implements OnUpdateListener {
 
+    //UI Component
+    private ImageButton btnMenu;
+    private TextView txtLogView;
+    private FloatingActionButton btnStart;
+
     //setting K//
     private final float PCD_CONFIDENCE = 0.3f; //pcd confidence over 30%
 
@@ -42,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener 
     private ARFragment arFragment = null;
     private CameraIntrinsics cameraIntrinsics = null;
 
-
     private KIOManager kioManager = null;
 
 
@@ -51,7 +59,10 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        viewModel = new ViewModelProvider(this).get(ARViewModel.class);
+
         initPermissions();
+        init();
     }
 
     private void initPermissions(){
@@ -59,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener 
             if(isAllSuccess){
                 //todo: start code
                 FileUtils.createRootPath();
-                init();
+
             }else{
                 Toast.makeText(getApplicationContext(), "Setting Permission yourself", Toast.LENGTH_SHORT).show();
             }
@@ -68,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener 
 
     private void init(){
         initARView();
+        initUI();
     }
 
     private void initARView(){
@@ -76,9 +88,22 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_ar_view, arFragment).commit();
 
-        viewModel = new ViewModelProvider(this).get(ARViewModel.class);
     }
 
+    private void initUI(){
+        btnStart = findViewById(R.id.btn_start);
+        btnMenu = findViewById(R.id.btn_menu);
+        txtLogView = findViewById(R.id.txt_logview);
+
+        btnStart.setOnClickListener(v -> collectController());
+        btnMenu.setOnClickListener(v-> {
+            if(isStart.get()){
+                Toast.makeText(getApplicationContext(), getString(R.string.alert_change_menu), Toast.LENGTH_SHORT).show();
+            }else{
+                startActivity(new Intent(this, SettingsActivity.class));
+            }
+        });
+    }
 
     private void initKaptureSetting(File recordDirPath){
         boolean[] useKaptureDataset = new boolean[Kapture.values().length];
