@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 
 import com.sll.estimation.utils.CSVWriter;
 import com.sll.sllkapturedataset.kapture.Kapture;
+import com.sll.sllkapturedataset.utils.DeviceUtils;
 import com.sll.sllkapturedataset.utils.FileUtils;
 
 import java.io.BufferedWriter;
@@ -44,6 +45,10 @@ public class KIOManager {
     private final String SUBDIR_DEPTH = "depth";
     private final String SUBDIR_IMAGES = "images";
     private final String SUBDIR_LIDAR = "pcd";
+
+    public final static String EXE_DEPTH = ".depth";
+    public final static String EXE_PCD = ".pcd";
+    public final static String EXE_IMAGE = ".jpg";
 
     private boolean[] useKaptures;
 
@@ -124,11 +129,36 @@ public class KIOManager {
                 this.kaptureWriters[i] = null;
             }
         }
+    }
 
+    private String recordFilePath(long timestamp, String deviceID, String fileName, String dirName){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(timestamp); stringBuilder.append(",");
+        stringBuilder.append(deviceID); stringBuilder.append(",");
+        stringBuilder.append(dirName + File.separator + fileName);
+        return stringBuilder.toString();
+    }
+
+    public void recordSensors(String deviceName, String cameraType, int width, int height, String cameraIntrinsics){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(deviceName); stringBuilder.append(",");
+        stringBuilder.append(", ,camera,");
+        stringBuilder.append(cameraType); stringBuilder.append(",");
+        stringBuilder.append(width); stringBuilder.append(",");
+        stringBuilder.append(height); stringBuilder.append(",");
+        stringBuilder.append(cameraIntrinsics);
+        recordSensors(stringBuilder.toString());
     }
 
     public void recordSensors(@NonNull String str){
         records(Kapture.SENSORS, str);
+    }
+
+    public void recordRigs(String rigName, String deviceName){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(rigName); stringBuilder.append(",");
+        stringBuilder.append(deviceName); stringBuilder.append(",  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0");
+        recordRigs(stringBuilder.toString());
     }
 
     public void recordRigs(@NonNull String str){
@@ -139,8 +169,16 @@ public class KIOManager {
         records(Kapture.TRAJECTORIES, str);
     }
 
+    public void recordCamera(long timestamp, String deviceID, String fileName){
+        recordCamera(recordFilePath(timestamp, deviceID, fileName, SUBDIR_IMAGES));
+    }
+
     public void recordCamera(@NonNull String str){
         records(Kapture.RECORD_CAMERA, str);
+    }
+
+    public void recordDepth(long timestamp, String deviceID, String fileName){
+        recordDepth(recordFilePath(timestamp, deviceID, fileName, SUBDIR_DEPTH));
     }
 
     public void recordDepth(@NonNull String str){
@@ -149,6 +187,10 @@ public class KIOManager {
 
     public void recordGNSS(@NonNull String str){
         records(Kapture.RECORD_GNSS, str);
+    }
+
+    public void recordLidar(long timestamp, String deviceID, String fileName){
+        recordLidar(recordFilePath(timestamp, deviceID, fileName, SUBDIR_LIDAR));
     }
 
     public void recordLidar(@NonNull String str){

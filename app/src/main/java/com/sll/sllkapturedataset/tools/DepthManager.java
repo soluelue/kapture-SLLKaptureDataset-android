@@ -1,4 +1,4 @@
-package com.sll.arviewer.ar.common.samplerender.arcore;
+package com.sll.sllkapturedataset.tools;
 
 import android.media.Image;
 import android.opengl.Matrix;
@@ -14,14 +14,12 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-public class DepthData {
+public class DepthManager {
 
     public static final int FLOATS_PER_POINT = 4; // X,Y,Z,confidence.
 
     public static int DEPTH_WIDTH = -1;
     public static int DEPTH_HEIGHT = -1;
-
-
 
 
     public static Pair<FloatBuffer, ByteBuffer> create(Frame frame, Anchor cameraPoseAnchor) {
@@ -126,7 +124,6 @@ public class DepthData {
                                 y * confidenceImagePlane.getRowStride()
                                         + x * confidenceImagePlane.getPixelStride());
                 final float confidenceNormalized = ((float) (confidencePixelValue & 0xff)) / 255.0f;
-//                GLog.d("ARCore", "confidence = " + confidenceNormalized);
                 // Unproject the depth into a 3D point in camera coordinates.
                 pointCamera[0] = depthMeters * (x - cx) / fx;
                 pointCamera[1] = depthMeters * (cy - y) / fy;

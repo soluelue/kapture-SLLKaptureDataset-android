@@ -44,8 +44,7 @@ public class ImageUtils {
         return bitmap; //rotateBitmap(bitmap, 90);
     }
 
-    private static ByteBuffer imageToByteBuffer(final Image image)
-    {
+    private static ByteBuffer imageToByteBuffer(final Image image) {
         final Rect crop   = image.getCropRect();
         final int  width  = crop.width();
         final int  height = crop.height();
@@ -118,14 +117,30 @@ public class ImageUtils {
         return output;
     }
 
-    public static Bitmap rotateBitmap(Bitmap source, float angle)
-    {
+    public static Bitmap rotateBitmap(Bitmap source, float angle) {
         //todo: resize image
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
+    public static void bitmapToSaveJpeg(Bitmap bitmap, File filePath){
+        OutputStream outStream = null;
+        try {
+            filePath.createNewFile();
+            outStream = new FileOutputStream(filePath);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                outStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
     public static void bitmapToSaveJpeg(Context context, Bitmap bitmap, String fileName, File rootDir){
         //todo: save cache folder -> move file to gathering folder -> delete cache image

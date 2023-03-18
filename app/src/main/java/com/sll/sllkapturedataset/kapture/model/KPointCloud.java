@@ -3,6 +3,10 @@ package com.sll.sllkapturedataset.kapture.model;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
+/**
+ * @author soluelue
+ *
+ * */
 public class KPointCloud {
     private long timestamp;
 
@@ -10,25 +14,32 @@ public class KPointCloud {
     //depth : x, y, z, confidence
     private ArrayList<float[]> pcdArrays = new ArrayList<>();
 
-    public static KPointCloud bufferToObject(long timestamp, FloatBuffer point){
+    /**
+     * @see KPointCloud
+     * @brief change FloatBuffer to KPointcloud object
+     * @param timestamp index
+     * @param point point cloud data
+     * @param standConfidence standard of confidence
+     * */
+    public static KPointCloud bufferToObject(long timestamp, FloatBuffer point, float standConfidence){
         if(point.limit() > 0) {
-            KPointCloud arCorePCD = new KPointCloud();
+            KPointCloud kPointCloud = new KPointCloud();
             ArrayList<float[]> pcdCoords = new ArrayList<>();
 
             for (int i = 0; i < point.limit(); i+=4) {
-                float p00 = point.get(i);
-                float p01 = point.get(i + 1);
-                float p02 = point.get(i + 2);
-                float p03 = point.get(i + 3);
-                if(p03 > 0.3f){
-                    //todo: check confidence
-                    pcdCoords.add(new float[]{p00, p01, p02, p03});
+                float x = point.get(i);
+                float y = point.get(i + 1);
+                float z = point.get(i + 2);
+                float confidence = point.get(i + 3);
+
+                if(confidence > standConfidence){
+                    pcdCoords.add(new float[]{x, y, z, confidence});
                 }
             }
 
-            arCorePCD.setTimestamp(timestamp);
-            arCorePCD.setPcdArrays(pcdCoords);
-            return arCorePCD;
+            kPointCloud.setTimestamp(timestamp);
+            kPointCloud.setPcdArrays(pcdCoords);
+            return kPointCloud;
         }
         return null;
     }
