@@ -6,7 +6,7 @@ import com.sll.estimation.model.Trajectory;
 
 public class KTrajectory extends Trajectory {
 
-    private String deviceName = null;
+    private String deviceID = null;
 
     public KTrajectory(long timestamp) {
         super(timestamp);
@@ -16,19 +16,19 @@ public class KTrajectory extends Trajectory {
         super(timestamp, tx, ty, tz, rqx, rqy, rqz, rqw);
     }
 
-    public KTrajectory(long timestamp, String deviceName, float[] translation, float[] rotationQuaternion){
+    public KTrajectory(long timestamp, String deviceID, float[] translation, float[] rotationQuaternion){
         super(timestamp, translation[0], translation[1], translation[2],
                 rotationQuaternion[0], translation[1], translation[2], translation[3]);
 
-        this.deviceName = deviceName;
+        this.deviceID = deviceID;
     }
 
-    public String getDeviceName() {
-        return deviceName;
+    public String getDeviceID() {
+        return deviceID;
     }
 
-    public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
+    public void setDeviceID(String deviceID) {
+        this.deviceID = deviceID;
     }
 
     @NonNull
@@ -36,7 +36,7 @@ public class KTrajectory extends Trajectory {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(getTimestamp()); stringBuilder.append(',');
-        stringBuilder.append(getDeviceName()); stringBuilder.append(',');
+        stringBuilder.append(getDeviceID()); stringBuilder.append(',');
         stringBuilder.append(getRqw()); stringBuilder.append(',');
         stringBuilder.append(getRqx()); stringBuilder.append(',');
         stringBuilder.append(getRqy()); stringBuilder.append(',');
