@@ -1,6 +1,7 @@
 package com.sll.sllkapturedataset.tools;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -10,55 +11,54 @@ import android.location.LocationManager;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
+import com.sll.sllkapturedataset.kapture.Kapture;
 import com.sll.sllkapturedataset.kapture.model.KGnss;
 
-public class GNSSManager implements LocationListener {
-
-    private Context mContext;
-    private ManagerListener.OnResultListener listener;
+public class GNSSManager extends KaptureManager implements LocationListener {
     private LocationManager manager = null;
 
-    private String deviceName;
-
-    public GNSSManager(Context mContext, String deviceName, ManagerListener.OnResultListener listener) throws PermissionException {
-        this.listener = listener;
-        this.mContext = mContext;
-        this.deviceName = deviceName;
-
+    public GNSSManager(Context mContext, ManagerListener.OnResultListener listener, String deviceID) throws PermissionException {
+        super(mContext, listener, deviceID);
         initLocationManager();
     }
 
-    private void initLocationManager() throws PermissionException {
-        this.manager = (LocationManager) this.mContext.getSystemService(Context.LOCATION_SERVICE);
-
-        if (ActivityCompat.checkSelfPermission(this.mContext, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this.mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            throw new PermissionException(new String[]{Manifest.permission.ACCESS_FINE_LOCATION
-                    , Manifest.permission.ACCESS_COARSE_LOCATION});
-        }
-
+    @SuppressLint("MissingPermission")
+    @Override
+    public void start() {
         this.manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         this.manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
     }
 
-    public void stopLocationManager(){
+    @Override
+    public void stop() {
         if(this.manager != null){
             this.manager.removeUpdates(this::onLocationChanged);
+        }
+    }
+
+    private void initLocationManager() throws PermissionException {
+        this.manager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new PermissionException(new String[]{Manifest.permission.ACCESS_FINE_LOCATION
+                    , Manifest.permission.ACCESS_COARSE_LOCATION});
         }
     }
 
     @Override
     public void onLocationChanged(@NonNull Location location) {
         long timestamp = System.currentTimeMillis();
-        double lat = location.getLatitude();
-        double lon = location.getLongitude();
-        double altitude = location.getAltitude();
+        float lat = (float) location.getLatitude();
+        float lon = (float) location.getLongitude();
+        float altitude = (float) location.getAltitude();
         long utc = location.getTime();
-        double dop = 0;
+        float dop = 0f;
 
-        listener.onResult(new KGnss(timestamp, this.deviceName, lon, lat, altitude, utc, dop));
+        getListener().onResult(Kapture.RECORD_GNSS, new KGnss(timestamp, getDeviceID(),
+                lon, lat, altitude, utc, dop));
     }
 
 }

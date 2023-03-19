@@ -139,9 +139,9 @@ public class KIOManager {
         return stringBuilder.toString();
     }
 
-    public void recordSensors(String deviceName, String cameraType, int width, int height, String cameraIntrinsics){
+    public void recordSensors(String deviceID, String cameraType, int width, int height, String cameraIntrinsics){
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(deviceName); stringBuilder.append(",");
+        stringBuilder.append(deviceID); stringBuilder.append(",");
         stringBuilder.append(", ,camera,");
         stringBuilder.append(cameraType); stringBuilder.append(",");
         stringBuilder.append(width); stringBuilder.append(",");
@@ -154,10 +154,10 @@ public class KIOManager {
         records(Kapture.SENSORS, str);
     }
 
-    public void recordRigs(String rigName, String deviceName){
+    public void recordRigs(String rigName, String deviceID){
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(rigName); stringBuilder.append(",");
-        stringBuilder.append(deviceName); stringBuilder.append(",  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0");
+        stringBuilder.append(deviceID); stringBuilder.append(",  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0");
         recordRigs(stringBuilder.toString());
     }
 
@@ -187,6 +187,18 @@ public class KIOManager {
 
     public void recordGNSS(@NonNull String str){
         records(Kapture.RECORD_GNSS, str);
+    }
+
+    public void recordAccel(@NonNull String str){
+        records(Kapture.RECORD_ACCEL, str);
+    }
+
+    public void recordMag(@NonNull String str){
+        records(Kapture.RECORD_MAG, str);
+    }
+
+    public void recordGyro(@NonNull String str){
+        records(Kapture.RECORD_GYRO, str);
     }
 
     public void recordLidar(long timestamp, String deviceID, String fileName){

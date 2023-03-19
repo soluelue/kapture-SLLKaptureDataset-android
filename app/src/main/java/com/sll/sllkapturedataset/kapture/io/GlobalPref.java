@@ -17,6 +17,10 @@ public class GlobalPref {
     public static final String CONFIG_USE_GNSS = "setting.kapture.gnss";
     public static final String CONFIG_USE_LIDAR = "setting.kapture.lidar";
     public static final String CONFIG_USE_WIFI = "setting.kapture.wifi";
+    public static final String CONFIG_USE_BLE = "setting.kapture.bluetooth";
+    public static final String CONFIG_USE_ACCEL = "setting.kapture.accelerometer";
+    public static final String CONFIG_USE_GYRO = "setting.kapture.gyroscope";
+    public static final String CONFIG_USE_MAG = "setting.kapture.magetic";
 
     private static class LazyHolder {
         private static final GlobalPref INSTANCE = new GlobalPref();
@@ -79,6 +83,46 @@ public class GlobalPref {
         editor.apply();
     }
 
+    public static boolean isUseBLE(){
+        return getPreferences().getBoolean(CONFIG_USE_BLE, false );
+    }
+
+    public static void setUseBLE(boolean value){
+        SharedPreferences.Editor editor = getPreferences().edit();
+        editor.putBoolean(CONFIG_USE_BLE, value);
+        editor.apply();
+    }
+
+
+    public static boolean isUseAccel(){
+        return getPreferences().getBoolean(CONFIG_USE_ACCEL, false );
+    }
+
+    public static void setUseAccel(boolean value){
+        SharedPreferences.Editor editor = getPreferences().edit();
+        editor.putBoolean(CONFIG_USE_ACCEL, value);
+        editor.apply();
+    }
+
+    public static boolean isUseGyro(){
+        return getPreferences().getBoolean(CONFIG_USE_GYRO, false );
+    }
+
+    public static void setUseGyro(boolean value){
+        SharedPreferences.Editor editor = getPreferences().edit();
+        editor.putBoolean(CONFIG_USE_GYRO, value);
+        editor.apply();
+    }
+
+    public static boolean isUseMag(){
+        return getPreferences().getBoolean(CONFIG_USE_MAG, false );
+    }
+
+    public static void setUseMag(boolean value){
+        SharedPreferences.Editor editor = getPreferences().edit();
+        editor.putBoolean(CONFIG_USE_MAG, value);
+        editor.apply();
+    }
 
 
 }

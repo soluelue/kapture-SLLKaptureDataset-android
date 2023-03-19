@@ -8,14 +8,6 @@ public class KTrajectory extends Trajectory {
 
     private String deviceID = null;
 
-    public KTrajectory(long timestamp) {
-        super(timestamp);
-    }
-
-    public KTrajectory(long timestamp, float tx, float ty, float tz, float rqx, float rqy, float rqz, float rqw) {
-        super(timestamp, tx, ty, tz, rqx, rqy, rqz, rqw);
-    }
-
     public KTrajectory(long timestamp, String deviceID, float[] translation, float[] rotationQuaternion){
         super(timestamp, translation[0], translation[1], translation[2],
                 rotationQuaternion[0], translation[1], translation[2], translation[3]);
@@ -25,10 +17,6 @@ public class KTrajectory extends Trajectory {
 
     public String getDeviceID() {
         return deviceID;
-    }
-
-    public void setDeviceID(String deviceID) {
-        this.deviceID = deviceID;
     }
 
     @NonNull

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.hardware.SensorManager;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Pair;
@@ -29,11 +30,16 @@ import com.sll.sllkapturedataset.kapture.io.GlobalPref;
 import com.sll.sllkapturedataset.kapture.io.KIOManager;
 import com.sll.sllkapturedataset.kapture.model.KGnss;
 import com.sll.sllkapturedataset.kapture.model.KPointCloud;
+import com.sll.sllkapturedataset.kapture.model.KSensors;
 import com.sll.sllkapturedataset.kapture.model.KTrajectory;
+import com.sll.sllkapturedataset.kapture.model.KWiFi;
+import com.sll.sllkapturedataset.tools.BluetoothScanManager;
 import com.sll.sllkapturedataset.tools.DepthManager;
 import com.sll.sllkapturedataset.tools.GNSSManager;
 import com.sll.sllkapturedataset.tools.ManagerListener;
 import com.sll.sllkapturedataset.tools.PermissionException;
+import com.sll.sllkapturedataset.tools.SensorScanManager;
+import com.sll.sllkapturedataset.tools.WiFiScanManager;
 import com.sll.sllkapturedataset.utils.DateUtils;
 import com.sll.sllkapturedataset.utils.DeviceUtils;
 import com.sll.sllkapturedataset.utils.FileUtils;
@@ -42,6 +48,7 @@ import com.sll.sllkapturedataset.utils.ImageUtils;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity implements OnUpdateListener, ManagerListener.OnResultListener {
@@ -64,8 +71,11 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
     //Save the basic files(ex: rigs, sessions..) at the first run in case the app dies.
     private AtomicBoolean isRecordBaseInfo = new AtomicBoolean(false);
 
-    //kapture dataset
+    //kapture manager dataset
     private GNSSManager gnssManager = null;
+    private SensorScanManager sensorScanManager = null;
+    private WiFiScanManager wiFiScanManager = null;
+    private BluetoothScanManager bluetoothScanManager = null;
 
 
     @Override
@@ -130,19 +140,14 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
                     useKaptureDataset[i] = false;
                 }
 
-                if((kapture.getIdx() == Kapture.RECORD_LIDAR.getIdx())
-                        && !GlobalPref.isUseLidar()){
-                    useKaptureDataset[i] = false;
-                }
-
-                if((kapture.getIdx() == Kapture.RECORD_GNSS.getIdx())
-                        && !GlobalPref.isUseGNSS()){
-                    useKaptureDataset[i] = false;
-                }
-
-                if((kapture.getIdx() == Kapture.RECORD_WIFI.getIdx())
-                        && !GlobalPref.isUseWiFi()){
-                    useKaptureDataset[i] = false;
+                switch (kapture){
+                    case RECORD_LIDAR: if(!GlobalPref.isUseLidar()) useKaptureDataset[i] = false; break;
+                    case RECORD_GNSS: if(!GlobalPref.isUseGNSS()) useKaptureDataset[i] = false; break;
+                    case RECORD_WIFI: if(!GlobalPref.isUseWiFi()) useKaptureDataset[i] = false; break;
+                    case RECORD_BLE: if(!GlobalPref.isUseBLE()) useKaptureDataset[i] = false; break;
+                    case RECORD_ACCEL: if(!GlobalPref.isUseAccel()) useKaptureDataset[i] = false; break;
+                    case RECORD_GYRO: if(!GlobalPref.isUseGyro()) useKaptureDataset[i] = false; break;
+                    case RECORD_MAG: if(!GlobalPref.isUseMag()) useKaptureDataset[i] = false; break;
                 }
             }
         }
@@ -154,13 +159,35 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
      * @brief start kapture optional dataset manager(ex: gnss,,wifi,,)
      * */
     private void startManager(){
+
+        //------------------------------ gnss manager
         if(GlobalPref.isUseGNSS()){
             try {
-                gnssManager = new GNSSManager(getApplicationContext(), DeviceUtils.DEVICE_NAME, this);
+                gnssManager = new GNSSManager(getApplicationContext(),this, DeviceUtils.DEVICE_ID);
+                gnssManager.start();
             }catch (PermissionException e){
 
             }
         }
+
+        //------------------------------ sensor manager
+        sensorScanManager = new SensorScanManager(getApplicationContext(), this, DeviceUtils.DEVICE_ID);
+        sensorScanManager.setSamplingRate(SensorManager.SENSOR_DELAY_FASTEST);
+        sensorScanManager.setMag(GlobalPref.isUseMag());
+        sensorScanManager.setAccel(GlobalPref.isUseAccel());
+        sensorScanManager.setGyro(GlobalPref.isUseGyro());
+        sensorScanManager.start();
+
+        //------------------------------ wifi scan manager
+        if(GlobalPref.isUseWiFi()){
+
+        }
+
+        //------------------------------ ble manager
+        if(GlobalPref.isUseBLE()){
+
+        }
+
     }
 
 
@@ -188,19 +215,30 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
     }
 
     private void stopCollectDataset(){
-
         kioManager.stopRecords();
         isRecordBaseInfo.set(false);
 
-        if(gnssManager != null) gnssManager.stopLocationManager();
+        if(gnssManager != null) gnssManager.stop();
+        if(wiFiScanManager != null) wiFiScanManager.stop();
+        if(bluetoothScanManager != null) bluetoothScanManager.stop();
+        if(sensorScanManager != null) sensorScanManager.stop();
     }
 
     @Override
-    public void onResult(Object object) {
-
+    public void onResult(Kapture kapture, Object object) {
         if(kioManager == null) return;
-        if(object instanceof KGnss){
-             kioManager.recordGNSS(((KGnss)object).toString());
+        switch (kapture){
+            case RECORD_GNSS: kioManager.recordGNSS(((KGnss)object).toString()); break;
+            case RECORD_ACCEL: kioManager.recordAccel(((KSensors)object).toString()); break;
+            case RECORD_MAG: kioManager.recordMag(((KSensors)object).toString()); break;
+            case RECORD_GYRO: kioManager.recordGyro(((KSensors)object).toString()); break;
+            case RECORD_WIFI:{
+                ArrayList<KWiFi> wifiList = (ArrayList<KWiFi>) object;
+                for(KWiFi wifi: wifiList){
+                    kioManager.recordWiFi(wifi.toString());
+                }
+            }break;
+            default: break;
         }
     }
 
@@ -252,17 +290,17 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         float[] focalLen = cameraIntrinsics.getFocalLength();
         float[] principalPoint = cameraIntrinsics.getPrincipalPoint();
 
-        kioManager.recordRigs(DeviceUtils.RIG_NAME, DeviceUtils.DEVICE_NAME);
-        kioManager.recordRigs(DeviceUtils.RIG_LIDAR_NAME, DeviceUtils.DEVICE_LIDAR_NAME);
-        kioManager.recordRigs(DeviceUtils.RIG_DEPTH_NAME, DeviceUtils.DEVICE_DEPTH_NAME);
+        kioManager.recordRigs(DeviceUtils.RIG_NAME, DeviceUtils.DEVICE_ID);
+        kioManager.recordRigs(DeviceUtils.RIG_LIDAR_NAME, DeviceUtils.DEVICE_LIDAR_ID);
+        kioManager.recordRigs(DeviceUtils.RIG_DEPTH_NAME, DeviceUtils.DEVICE_DEPTH_ID);
 
         // w, h, f, cx, cy
         String strCameraIntrinsics = focalLen[0] + "," + focalLen[1] + ","  + principalPoint[0] + "," + principalPoint[1];
-        kioManager.recordSensors(DeviceUtils.DEVICE_NAME, DeviceUtils.CAMERA_TYPE
+        kioManager.recordSensors(DeviceUtils.DEVICE_ID, DeviceUtils.CAMERA_TYPE
                 , imageWidth, imageHeight, strCameraIntrinsics);
-        kioManager.recordSensors(DeviceUtils.DEVICE_LIDAR_NAME, DeviceUtils.CAMERA_RIDAR_TYPE
+        kioManager.recordSensors(DeviceUtils.DEVICE_LIDAR_ID, DeviceUtils.CAMERA_RIDAR_TYPE
                 , DepthManager.DEPTH_WIDTH, DepthManager.DEPTH_HEIGHT, strCameraIntrinsics);
-        kioManager.recordSensors(DeviceUtils.DEVICE_DEPTH_NAME, DeviceUtils.CAMERA_RIDAR_TYPE
+        kioManager.recordSensors(DeviceUtils.DEVICE_DEPTH_ID, DeviceUtils.CAMERA_RIDAR_TYPE
                 , DepthManager.DEPTH_WIDTH, DepthManager.DEPTH_HEIGHT, strCameraIntrinsics);
 
         //save the base information
@@ -273,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         float[] translation = cameraPose.getTranslation();
         float[] rotationQuaternion = cameraPose.getRotationQuaternion();
 
-        KTrajectory trajectory = new KTrajectory(timestamp, DeviceUtils.DEVICE_NAME, translation, rotationQuaternion);
+        KTrajectory trajectory = new KTrajectory(timestamp, DeviceUtils.DEVICE_ID, translation, rotationQuaternion);
         kioManager.recordTrajectories(trajectory.toString());
     }
 
@@ -282,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
 
         String fileName = timestamp + KIOManager.EXE_IMAGE;
         ImageUtils.bitmapToSaveJpeg(bitmap, new File(kioManager.getRecordSubImagesPath(), fileName));
-        kioManager.recordCamera(timestamp, DeviceUtils.DEVICE_NAME, fileName);
+        kioManager.recordCamera(timestamp, DeviceUtils.DEVICE_ID, fileName);
     }
 
     private void createLidarDepthData(long timestamp, Frame frame, Anchor anchor){
@@ -295,13 +333,13 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         String lidarFileName = timestamp + KIOManager.EXE_PCD;
         File lidarFile = new File(kioManager.getRecordSubLidarPath(), lidarFileName);
         KIOManager.recordLidarFile(lidarFile, kPointCloud.getPcdArrays().size(), kPointCloud.toString());
-        kioManager.recordLidar(timestamp, DeviceUtils.DEVICE_LIDAR_NAME, lidarFileName);
+        kioManager.recordLidar(timestamp, DeviceUtils.DEVICE_LIDAR_ID, lidarFileName);
 
         //---------------- create depth file
         String depthFileName = timestamp + KIOManager.EXE_DEPTH;
         File depthFile = new File(kioManager.getRecordSubDepthPath(), depthFileName);
         KIOManager.recordDepthFile(depthFile, pcdBuffer.second);
-        kioManager.recordDepth(timestamp, DeviceUtils.DEVICE_DEPTH_NAME, depthFileName);
+        kioManager.recordDepth(timestamp, DeviceUtils.DEVICE_DEPTH_ID, depthFileName);
 
     }
 
