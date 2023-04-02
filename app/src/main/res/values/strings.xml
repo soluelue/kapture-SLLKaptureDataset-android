@@ -6,12 +6,23 @@
     <string name="title_activity_settings">SettingsActivity</string>
 
     <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
+    <string name="setting_title_app">App Setting</string>
+    <string name="setting_title_arcore">ArCore Setting</string>
+    <string name="setting_title_sensors">Sensor Setting</string>
 
     <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
+    <string name="app_server">Server Url</string>
+    <string name="app_log">Show Log View </string>
+
+    <string name="arcore_depth">Show Depth View</string>
+
+    <string name="sensor_gnss">Collect Gnss</string>
+    <string name="sensor_lidar">Collect Lidar</string>
+    <string name="sensor_wifi">Collect WiFi</string>
+    <string name="sensor_ble">Collect Bluetooth</string>
+    <string name="sensor_accel">Collect Accelerometer</string>
+    <string name="sensor_gyro">Collect Gyroscope</string>
+    <string name="sensor_mag">Collect Magnetic</string>
 
     <!-- Sync Preferences -->
     <string name="sync_title">Sync email periodically</string>

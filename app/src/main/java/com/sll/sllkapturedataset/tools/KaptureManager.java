@@ -2,12 +2,14 @@ package com.sll.sllkapturedataset.tools;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 public abstract class KaptureManager {
     private Context mContext;
     private ManagerListener.OnResultListener listener;
     private String deviceID;
 
-    public KaptureManager(Context mContext, ManagerListener.OnResultListener listener, String deviceID){
+    public KaptureManager(@NonNull Context mContext, @NonNull ManagerListener.OnResultListener listener, @NonNull String deviceID){
         this.mContext = mContext;
         this.listener = listener;
         this.deviceID = deviceID;
@@ -28,6 +30,10 @@ public abstract class KaptureManager {
     public void setDeviceID(String deviceID) {
         this.deviceID = deviceID;
     }
+
+    public long getCurrentTimestamp(){
+        return System.currentTimeMillis();
+    };
 
     abstract public void start();
     abstract public void stop();

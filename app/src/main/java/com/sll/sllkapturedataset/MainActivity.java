@@ -180,12 +180,14 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
 
         //------------------------------ wifi scan manager
         if(GlobalPref.isUseWiFi()){
-
+            wiFiScanManager = new WiFiScanManager(getApplicationContext(), this, DeviceUtils.DEVICE_ID);
+            wiFiScanManager.start();
         }
 
         //------------------------------ ble manager
         if(GlobalPref.isUseBLE()){
-
+            bluetoothScanManager = new BluetoothScanManager(getApplicationContext(), this, DeviceUtils.DEVICE_ID);
+            bluetoothScanManager.start();
         }
 
     }
@@ -295,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         kioManager.recordRigs(DeviceUtils.RIG_DEPTH_NAME, DeviceUtils.DEVICE_DEPTH_ID);
 
         // w, h, f, cx, cy
-        String strCameraIntrinsics = focalLen[0] + "," + focalLen[1] + ","  + principalPoint[0] + "," + principalPoint[1];
+        String strCameraIntrinsics = focalLen[0] + KIOManager.SEPARATOR + focalLen[1] + KIOManager.SEPARATOR  + principalPoint[0] + KIOManager.SEPARATOR + principalPoint[1];
         kioManager.recordSensors(DeviceUtils.DEVICE_ID, DeviceUtils.CAMERA_TYPE
                 , imageWidth, imageHeight, strCameraIntrinsics);
         kioManager.recordSensors(DeviceUtils.DEVICE_LIDAR_ID, DeviceUtils.CAMERA_RIDAR_TYPE
@@ -327,19 +329,20 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         //todo: memory leak checking
         Pair<FloatBuffer, ByteBuffer> pcdBuffer = DepthManager.create(frame, anchor);
         if(pcdBuffer == null) return;
-        KPointCloud kPointCloud = KPointCloud.bufferToObject(timestamp, pcdBuffer.first, PCD_CONFIDENCE);
-
-        //---------------- create lidar(point cloud) file
-        String lidarFileName = timestamp + KIOManager.EXE_PCD;
-        File lidarFile = new File(kioManager.getRecordSubLidarPath(), lidarFileName);
-        KIOManager.recordLidarFile(lidarFile, kPointCloud.getPcdArrays().size(), kPointCloud.toString());
-        kioManager.recordLidar(timestamp, DeviceUtils.DEVICE_LIDAR_ID, lidarFileName);
-
         //---------------- create depth file
         String depthFileName = timestamp + KIOManager.EXE_DEPTH;
         File depthFile = new File(kioManager.getRecordSubDepthPath(), depthFileName);
         KIOManager.recordDepthFile(depthFile, pcdBuffer.second);
         kioManager.recordDepth(timestamp, DeviceUtils.DEVICE_DEPTH_ID, depthFileName);
+
+
+        KPointCloud kPointCloud = KPointCloud.bufferToObject(timestamp, pcdBuffer.first, PCD_CONFIDENCE);
+        if(kPointCloud == null) return;
+        //---------------- create lidar(point cloud) file
+        String lidarFileName = timestamp + KIOManager.EXE_PCD;
+        File lidarFile = new File(kioManager.getRecordSubLidarPath(), lidarFileName);
+        KIOManager.recordLidarFile(lidarFile, kPointCloud.getPcdArrays().size(), kPointCloud.toString());
+        kioManager.recordLidar(timestamp, DeviceUtils.DEVICE_LIDAR_ID, lidarFileName);
 
     }
 

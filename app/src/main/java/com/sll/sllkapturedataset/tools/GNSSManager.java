@@ -17,7 +17,7 @@ import com.sll.sllkapturedataset.kapture.model.KGnss;
 public class GNSSManager extends KaptureManager implements LocationListener {
     private LocationManager manager = null;
 
-    public GNSSManager(Context mContext, ManagerListener.OnResultListener listener, String deviceID) throws PermissionException {
+    public GNSSManager(@NonNull Context mContext, @NonNull ManagerListener.OnResultListener listener, @NonNull String deviceID) throws PermissionException {
         super(mContext, listener, deviceID);
         initLocationManager();
     }
@@ -50,14 +50,13 @@ public class GNSSManager extends KaptureManager implements LocationListener {
 
     @Override
     public void onLocationChanged(@NonNull Location location) {
-        long timestamp = System.currentTimeMillis();
         float lat = (float) location.getLatitude();
         float lon = (float) location.getLongitude();
         float altitude = (float) location.getAltitude();
         long utc = location.getTime();
         float dop = 0f;
 
-        getListener().onResult(Kapture.RECORD_GNSS, new KGnss(timestamp, getDeviceID(),
+        getListener().onResult(Kapture.RECORD_GNSS, new KGnss(getCurrentTimestamp(), getDeviceID(),
                 lon, lat, altitude, utc, dop));
     }
 

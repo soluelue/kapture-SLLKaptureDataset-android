@@ -4,6 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+/**
+ * @author soluelue
+ * @version 1.0
+ * @since 2023.04.02
+ * */
 public class GlobalPref {
 
     private static final String PREFS_KEY = "SLLKaptureDataset";
@@ -13,6 +18,9 @@ public class GlobalPref {
     /**
      * setting kapture configuration
      * */
+    public static final String CONFIG_SERVER_URL = "setting.server.url"; ///positioning server url
+    public static final String CONFIG_SHOW_LOG = "setting.show.log"; ///positioning server url
+
     public static final String CONFIG_USE_DEPTH = "setting.kapture.depth";
     public static final String CONFIG_USE_GNSS = "setting.kapture.gnss";
     public static final String CONFIG_USE_LIDAR = "setting.kapture.lidar";

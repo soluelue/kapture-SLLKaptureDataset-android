@@ -17,7 +17,12 @@ import com.sll.sllkapturedataset.kapture.model.KWiFi;
 import java.util.ArrayList;
 import java.util.List;
 
-/** timestamp, device_id, BSSID, frequency, RSSI, SSID, scan_time_start, scan_time_end */
+/**
+ * @brief timestamp, device_id, BSSID, frequency, RSSI, SSID, scan_time_start, scan_time_end
+ * @author soluelue
+ * @version 1.0
+ * @since 2023.04.02
+ * */
 public class WiFiScanManager extends KaptureManager {
 
     private long startScanTime = 0L;
@@ -64,12 +69,12 @@ public class WiFiScanManager extends KaptureManager {
         List<ScanResult> results = wifiManager.getScanResults();
         ArrayList<KWiFi> wifiList = new ArrayList<>();
         for (ScanResult scanResult : results){
-            long timestamp = System.currentTimeMillis();
             String bssid = scanResult.BSSID;
             String ssid = scanResult.BSSID;
             int frequency = scanResult.frequency;
             int rssi = scanResult.level;
-            KWiFi kWiFi = new KWiFi(timestamp, getDeviceID(),bssid, frequency, rssi, ssid, startScanTime, endScanTime);
+            KWiFi kWiFi = new KWiFi(getCurrentTimestamp(), getDeviceID()
+                    , bssid, frequency, rssi, ssid, startScanTime, endScanTime);
             wifiList.add(kWiFi);
         }
 

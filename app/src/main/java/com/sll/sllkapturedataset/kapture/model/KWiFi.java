@@ -1,5 +1,7 @@
 package com.sll.sllkapturedataset.kapture.model;
 
+import com.sll.sllkapturedataset.kapture.io.KIOManager;
+
 public class KWiFi extends KObject {
 
     private String bssid;
@@ -23,13 +25,13 @@ public class KWiFi extends KObject {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(this.getTimestamp()); stringBuilder.append(",");
-        stringBuilder.append(this.getDeviceID()); stringBuilder.append(",");
-        stringBuilder.append(this.bssid); stringBuilder.append(",");
-        stringBuilder.append(this.frequency); stringBuilder.append(",");
-        stringBuilder.append(this.rssi); stringBuilder.append(",");
-        stringBuilder.append(this.ssid); stringBuilder.append(",");
-        stringBuilder.append(this.scanTimeStart); stringBuilder.append(",");
+        stringBuilder.append(this.getTimestamp()); stringBuilder.append(KIOManager.SEPARATOR);
+        stringBuilder.append(this.getDeviceID()); stringBuilder.append(KIOManager.SEPARATOR);
+        stringBuilder.append(this.bssid); stringBuilder.append(KIOManager.SEPARATOR);
+        stringBuilder.append(this.frequency); stringBuilder.append(KIOManager.SEPARATOR);
+        stringBuilder.append(this.rssi); stringBuilder.append(KIOManager.SEPARATOR);
+        stringBuilder.append(this.ssid); stringBuilder.append(KIOManager.SEPARATOR);
+        stringBuilder.append(this.scanTimeStart); stringBuilder.append(KIOManager.SEPARATOR);
         stringBuilder.append(this.scanTimeEnd);
         return stringBuilder.toString();
     }

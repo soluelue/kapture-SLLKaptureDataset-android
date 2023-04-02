@@ -46,6 +46,7 @@ public class KIOManager {
     private final String SUBDIR_IMAGES = "images";
     private final String SUBDIR_LIDAR = "pcd";
 
+    public final static String SEPARATOR = ",";
     public final static String EXE_DEPTH = ".depth";
     public final static String EXE_PCD = ".pcd";
     public final static String EXE_IMAGE = ".jpg";
@@ -133,19 +134,19 @@ public class KIOManager {
 
     private String recordFilePath(long timestamp, String deviceID, String fileName, String dirName){
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(timestamp); stringBuilder.append(",");
-        stringBuilder.append(deviceID); stringBuilder.append(",");
+        stringBuilder.append(timestamp); stringBuilder.append(KIOManager.SEPARATOR);
+        stringBuilder.append(deviceID); stringBuilder.append(KIOManager.SEPARATOR);
         stringBuilder.append(dirName + File.separator + fileName);
         return stringBuilder.toString();
     }
 
     public void recordSensors(String deviceID, String cameraType, int width, int height, String cameraIntrinsics){
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(deviceID); stringBuilder.append(",");
+        stringBuilder.append(deviceID); stringBuilder.append(KIOManager.SEPARATOR);
         stringBuilder.append(", ,camera,");
-        stringBuilder.append(cameraType); stringBuilder.append(",");
-        stringBuilder.append(width); stringBuilder.append(",");
-        stringBuilder.append(height); stringBuilder.append(",");
+        stringBuilder.append(cameraType); stringBuilder.append(KIOManager.SEPARATOR);
+        stringBuilder.append(width); stringBuilder.append(KIOManager.SEPARATOR);
+        stringBuilder.append(height); stringBuilder.append(KIOManager.SEPARATOR);
         stringBuilder.append(cameraIntrinsics);
         recordSensors(stringBuilder.toString());
     }
@@ -156,7 +157,7 @@ public class KIOManager {
 
     public void recordRigs(String rigName, String deviceID){
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(rigName); stringBuilder.append(",");
+        stringBuilder.append(rigName); stringBuilder.append(KIOManager.SEPARATOR);
         stringBuilder.append(deviceID); stringBuilder.append(",  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0");
         recordRigs(stringBuilder.toString());
     }

@@ -6,9 +6,19 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+import androidx.annotation.NonNull;
+
 import com.sll.sllkapturedataset.kapture.Kapture;
+import com.sll.sllkapturedataset.kapture.model.KBluetooth;
 import com.sll.sllkapturedataset.kapture.model.KSensors;
 
+/**
+ * @brief SensorScanManager
+ * @author soluelue
+ * @version 1.0
+ * @since 2023.04.02
+ * @see KSensors
+ * */
 public class SensorScanManager extends KaptureManager implements SensorEventListener{
 
     private SensorManager sensorManager;
@@ -21,7 +31,7 @@ public class SensorScanManager extends KaptureManager implements SensorEventList
     /**
      * @see SensorManager
      * */
-    public SensorScanManager(Context mContext, ManagerListener.OnResultListener listener, String deviceID){
+    public SensorScanManager(@NonNull Context mContext, @NonNull  ManagerListener.OnResultListener listener, @NonNull String deviceID){
         super(mContext, listener, deviceID);
     }
 
@@ -57,9 +67,8 @@ public class SensorScanManager extends KaptureManager implements SensorEventList
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (getListener() == null) return;
-        long timestamp = System.currentTimeMillis();
         float[] r = event.values;
-        KSensors kSensors = new KSensors(timestamp, getDeviceID(), r[0], r[1], r[2]);
+        KSensors kSensors = new KSensors(getCurrentTimestamp(), getDeviceID(), r[0], r[1], r[2]);
         Kapture kapture = null;
         switch (event.sensor.getType()) {
             case Sensor.TYPE_ACCELEROMETER: kapture = Kapture.RECORD_ACCEL; break;
