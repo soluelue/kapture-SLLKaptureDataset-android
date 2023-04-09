@@ -49,6 +49,18 @@ public class GlobalPref {
     }
 
 
+    public static boolean isShowLog(){
+        return getPreferences().getBoolean(CONFIG_SHOW_LOG, false );
+    }
+
+    public static void setShowLog(boolean value){
+        SharedPreferences.Editor editor = getPreferences().edit();
+        editor.putBoolean(CONFIG_SHOW_LOG, value);
+        editor.apply();
+    }
+
+
+
     public static boolean isUseDepth(){
         return getPreferences().getBoolean(CONFIG_USE_DEPTH, false );
     }

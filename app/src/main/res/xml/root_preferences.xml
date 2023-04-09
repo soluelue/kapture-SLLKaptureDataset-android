@@ -2,15 +2,9 @@
 
     <PreferenceCategory app:title="@string/setting_title_app">
 
-<!--        <EditTextPreference-->
-<!--            app:key="setting.server.url"-->
-<!--            app:title="@string/app_server"-->
-<!--            app:useSimpleSummaryProvider="true" />-->
-
         <SwitchPreferenceCompat
             app:key="setting.show.log"
-            app:title="@string/app_log"
-            app:defaultValue="true"/>
+            app:title="@string/app_log" />
 
     </PreferenceCategory>
 
