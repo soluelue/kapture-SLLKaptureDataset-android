@@ -9,6 +9,7 @@ import android.hardware.SensorManager;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,6 +52,11 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * @author soluelue
+ * @version 1.0
+ * @since 2023.04.09
+ * */
 public class MainActivity extends AppCompatActivity implements OnUpdateListener, ManagerListener.OnResultListener {
 
     //UI Component
@@ -115,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         btnStart = findViewById(R.id.btn_start);
         btnMenu = findViewById(R.id.btn_menu);
         txtLogView = findViewById(R.id.txt_logview);
+        txtLogView.setVisibility(GlobalPref.isShowLog() ? View.VISIBLE : View.GONE);
 
         btnStart.setOnClickListener(v -> collectController());
         btnMenu.setOnClickListener(v-> {
