@@ -5,12 +5,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.CheckBoxPreference;
+import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
@@ -48,6 +50,8 @@ public class SettingsActivity extends AppCompatActivity {
         private SwitchPreferenceCompat swShowLog;
         private SwitchPreferenceCompat swShowDepth;
 
+        private EditTextPreference editPcdConfidence;
+
         private CheckBoxPreference chkGNSS;
         private CheckBoxPreference chkLidar;
         private CheckBoxPreference chkWiFi;
@@ -67,6 +71,10 @@ public class SettingsActivity extends AppCompatActivity {
             swShowDepth = (SwitchPreferenceCompat) findPreference(GlobalPref.CONFIG_USE_DEPTH);
             swShowDepth.setChecked(GlobalPref.isUseDepth());
             swShowDepth.setOnPreferenceChangeListener(this);
+
+            editPcdConfidence = (EditTextPreference) findPreference(GlobalPref.CONFIG_PCD_CONFIDENCE);
+            editPcdConfidence.setText(String.valueOf(GlobalPref.getPcdConfidence()));
+            editPcdConfidence.setOnPreferenceChangeListener(this);
 
             chkGNSS = (CheckBoxPreference) findPreference(GlobalPref.CONFIG_USE_GNSS);
             chkGNSS.setChecked(GlobalPref.isUseGNSS());
@@ -118,6 +126,24 @@ public class SettingsActivity extends AppCompatActivity {
             switch (preference.getKey()){
                 case GlobalPref.CONFIG_SHOW_LOG: GlobalPref.setShowLog((boolean) newValue); break;
                 case GlobalPref.CONFIG_USE_DEPTH: GlobalPref.setUseDepth((boolean) newValue); break;
+                case GlobalPref.CONFIG_PCD_CONFIDENCE:{
+                    try {
+                        float value = (float) newValue;
+                        if(value > 1.0f || value < 0.f){
+                            Toast.makeText(getActivity()
+                                    ,getActivity().getString(R.string.arcore_pcd_confidence_error_01)
+                                    ,Toast.LENGTH_SHORT).show();
+                        } else {
+                            GlobalPref.setPcdConfidence(value);
+                        }
+                    } catch (Exception e){
+                        Toast.makeText(getActivity()
+                                ,getActivity().getString(R.string.arcore_pcd_confidence_error_01)
+                                ,Toast.LENGTH_SHORT).show();
+                    } finally {
+                        editPcdConfidence.setText(String.valueOf(GlobalPref.getPcdConfidence()));
+                    }
+                }break;
                 case GlobalPref.CONFIG_USE_GNSS: GlobalPref.setUseGNSS((boolean) newValue); break;
                 case GlobalPref.CONFIG_USE_LIDAR: GlobalPref.setUseLidar((boolean) newValue); break;
                 case GlobalPref.CONFIG_USE_WIFI: GlobalPref.setUseWiFi((boolean) newValue); break;

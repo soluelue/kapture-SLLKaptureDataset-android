@@ -14,6 +14,11 @@
             app:key="setting.kapture.depth"
             app:title="@string/arcore_depth" />
 
+        <EditTextPreference
+            app:key="setting.kapture.pcd.confidence"
+            app:title="@string/arcore_pcd_confidence"
+            app:summary="@string/arcore_pcd_confidence_info" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/setting_title_sensors">

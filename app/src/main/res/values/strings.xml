@@ -15,6 +15,9 @@
     <string name="app_log">Show Log View </string>
 
     <string name="arcore_depth">Show Depth View</string>
+    <string name="arcore_pcd_confidence">Point cloud confidence</string>
+    <string name="arcore_pcd_confidence_info">Removes data outside the confidence interval.\n The confidence interval is 0 to 1</string>
+    <string name="arcore_pcd_confidence_error_01">Write float number. 0 to 1</string>
 
     <string name="sensor_gnss">Collect Gnss</string>
     <string name="sensor_lidar">Collect Lidar</string>

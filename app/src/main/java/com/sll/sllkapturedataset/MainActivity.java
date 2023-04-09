@@ -58,9 +58,6 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
     private TextView txtLogView;
     private FloatingActionButton btnStart;
 
-    //setting K//
-    private final float PCD_CONFIDENCE = 0.3f; //pcd confidence over 30%
-
     private AtomicBoolean isStart = new AtomicBoolean(false);
 
     /// setting AR
@@ -336,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         kioManager.recordDepth(timestamp, DeviceUtils.DEVICE_DEPTH_ID, depthFileName);
 
 
-        KPointCloud kPointCloud = KPointCloud.bufferToObject(timestamp, pcdBuffer.first, PCD_CONFIDENCE);
+        KPointCloud kPointCloud = KPointCloud.bufferToObject(timestamp, pcdBuffer.first, GlobalPref.getPcdConfidence());
         if(kPointCloud == null) return;
         //---------------- create lidar(point cloud) file
         String lidarFileName = timestamp + KIOManager.EXE_PCD;

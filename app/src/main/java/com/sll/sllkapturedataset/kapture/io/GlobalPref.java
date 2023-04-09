@@ -22,6 +22,8 @@ public class GlobalPref {
     public static final String CONFIG_SHOW_LOG = "setting.show.log"; ///positioning server url
 
     public static final String CONFIG_USE_DEPTH = "setting.kapture.depth";
+    public static final String CONFIG_PCD_CONFIDENCE = "setting.kapture.pcd.confidence";
+
     public static final String CONFIG_USE_GNSS = "setting.kapture.gnss";
     public static final String CONFIG_USE_LIDAR = "setting.kapture.lidar";
     public static final String CONFIG_USE_WIFI = "setting.kapture.wifi";
@@ -60,7 +62,6 @@ public class GlobalPref {
     }
 
 
-
     public static boolean isUseDepth(){
         return getPreferences().getBoolean(CONFIG_USE_DEPTH, false );
     }
@@ -71,6 +72,15 @@ public class GlobalPref {
         editor.apply();
     }
 
+    public static float getPcdConfidence(){
+        return getPreferences().getFloat(CONFIG_PCD_CONFIDENCE, 0.3f);
+    }
+
+    public static void setPcdConfidence(float value) {
+        SharedPreferences.Editor editor = getPreferences().edit();
+        editor.putFloat(CONFIG_PCD_CONFIDENCE, value);
+        editor.apply();
+    }
 
     public static boolean isUseGNSS(){
         return getPreferences().getBoolean(CONFIG_USE_GNSS, false );
