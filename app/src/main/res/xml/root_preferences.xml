@@ -11,7 +11,7 @@
     <PreferenceCategory app:title="@string/setting_title_arcore">
 
         <SwitchPreferenceCompat
-            app:key="setting.kapture.depth"
+            app:key="setting.show.depth"
             app:title="@string/arcore_depth" />
 
         <EditTextPreference
@@ -31,6 +31,11 @@
         <CheckBoxPreference
             app:key="setting.kapture.lidar"
             app:title="@string/sensor_lidar"
+            app:defaultValue="true" />
+
+        <CheckBoxPreference
+            app:key="setting.kapture.depth"
+            app:title="@string/sensor_deptu"
             app:defaultValue="true" />
 
         <CheckBoxPreference

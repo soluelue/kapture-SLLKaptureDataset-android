@@ -27,6 +27,7 @@ public class WiFiScanManager extends KaptureManager {
 
     private long startScanTime = 0L;
 
+    private IntentFilter intentFilter = null;
     private WifiManager wifiManager = null;
     private BroadcastReceiver wifiScanReceiver = new BroadcastReceiver() {
         @Override
@@ -39,7 +40,6 @@ public class WiFiScanManager extends KaptureManager {
                 }catch (PermissionException e){
 
                 }
-
             }
         }
     };
@@ -47,15 +47,13 @@ public class WiFiScanManager extends KaptureManager {
     public WiFiScanManager(Context mContext, ManagerListener.OnResultListener listener, String deviceID) {
         super(mContext, listener, deviceID);
         wifiManager = (WifiManager) getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
     }
 
     @Override
     public void start() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         getContext().registerReceiver(wifiScanReceiver, intentFilter);
-
-        // todo: make TimeTask
         startScanTime = System.currentTimeMillis();
         wifiManager.startScan();
     }
@@ -83,6 +81,6 @@ public class WiFiScanManager extends KaptureManager {
 
     @Override
     public void stop() {
-
+        getContext().unregisterReceiver(wifiScanReceiver);
     }
 }

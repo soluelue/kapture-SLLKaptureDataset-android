@@ -53,6 +53,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         private CheckBoxPreference chkGNSS;
         private CheckBoxPreference chkLidar;
+        private CheckBoxPreference chkDepth;
         private CheckBoxPreference chkWiFi;
         private CheckBoxPreference chkBle;
         private CheckBoxPreference chkAccel;
@@ -67,7 +68,7 @@ public class SettingsActivity extends AppCompatActivity {
             swShowLog.setChecked(GlobalPref.isShowLog());
             swShowLog.setOnPreferenceChangeListener(this);
 
-            swShowDepth = (SwitchPreferenceCompat) findPreference(GlobalPref.CONFIG_USE_DEPTH);
+            swShowDepth = (SwitchPreferenceCompat) findPreference(GlobalPref.CONFIG_SHOW_DEPTH);
             swShowDepth.setChecked(GlobalPref.isUseDepth());
             swShowDepth.setOnPreferenceChangeListener(this);
 
@@ -82,6 +83,10 @@ public class SettingsActivity extends AppCompatActivity {
             chkLidar = (CheckBoxPreference) findPreference(GlobalPref.CONFIG_USE_LIDAR);
             chkLidar.setChecked(GlobalPref.isUseLidar());
             chkLidar.setOnPreferenceChangeListener(this);
+
+            chkDepth = (CheckBoxPreference) findPreference(GlobalPref.CONFIG_USE_DEPTH);
+            chkDepth.setChecked(GlobalPref.isUseDepth());
+            chkDepth.setOnPreferenceChangeListener(this);
 
             chkWiFi = (CheckBoxPreference) findPreference(GlobalPref.CONFIG_USE_WIFI);
             chkWiFi.setChecked(GlobalPref.isUseWiFi());

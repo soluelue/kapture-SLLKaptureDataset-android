@@ -20,12 +20,13 @@ public class GlobalPref {
      * */
     public static final String CONFIG_SERVER_URL = "setting.server.url"; ///positioning server url
     public static final String CONFIG_SHOW_LOG = "setting.show.log"; ///positioning server url
+    public static final String CONFIG_SHOW_DEPTH = "setting.show.depth"; ///positioning server url
 
-    public static final String CONFIG_USE_DEPTH = "setting.kapture.depth";
     public static final String CONFIG_PCD_CONFIDENCE = "setting.kapture.pcd.confidence";
 
     public static final String CONFIG_USE_GNSS = "setting.kapture.gnss";
     public static final String CONFIG_USE_LIDAR = "setting.kapture.lidar";
+    public static final String CONFIG_USE_DEPTH = "setting.kapture.depth";
     public static final String CONFIG_USE_WIFI = "setting.kapture.wifi";
     public static final String CONFIG_USE_BLE = "setting.kapture.bluetooth";
     public static final String CONFIG_USE_ACCEL = "setting.kapture.accelerometer";
@@ -60,6 +61,17 @@ public class GlobalPref {
         editor.putBoolean(CONFIG_SHOW_LOG, value);
         editor.apply();
     }
+
+    public static boolean isShowDepth(){
+        return getPreferences().getBoolean(CONFIG_SHOW_DEPTH, false );
+    }
+
+    public static void setShowDepth(boolean value){
+        SharedPreferences.Editor editor = getPreferences().edit();
+        editor.putBoolean(CONFIG_SHOW_DEPTH, value);
+        editor.apply();
+    }
+
 
 
     public static boolean isUseDepth(){

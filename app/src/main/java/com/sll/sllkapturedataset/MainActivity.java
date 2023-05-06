@@ -45,6 +45,7 @@ import com.sll.sllkapturedataset.utils.DateUtils;
 import com.sll.sllkapturedataset.utils.DeviceUtils;
 import com.sll.sllkapturedataset.utils.FileUtils;
 import com.sll.sllkapturedataset.utils.ImageUtils;
+import com.sll.sllkapturedataset.utils.SLLog;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -58,6 +59,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 2023.04.09
  * */
 public class MainActivity extends AppCompatActivity implements OnUpdateListener, ManagerListener.OnResultListener {
+
+    private final String TAG = "Main";
 
     //UI Component
     private ImageButton btnMenu;
@@ -96,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         Permissions.checkPermission(getApplicationContext(), this, isAllSuccess -> {
             if(isAllSuccess){
                 //todo: start code
+                SLLog.d(TAG,"initPermissions create folder");
                 FileUtils.createRootPath();
 
             }else{
@@ -139,12 +143,8 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
             Kapture kapture = Kapture.values()[i];
             useKaptureDataset[i] = true;
             if(kapture.isOptional()){
-                if((kapture.getIdx() == Kapture.RECORD_DEPTH.getIdx())
-                        && !GlobalPref.isUseDepth()){
-                    useKaptureDataset[i] = false;
-                }
-
                 switch (kapture){
+                    case RECORD_DEPTH: if(!GlobalPref.isUseDepth()) useKaptureDataset[i] = false; break;
                     case RECORD_LIDAR: if(!GlobalPref.isUseLidar()) useKaptureDataset[i] = false; break;
                     case RECORD_GNSS: if(!GlobalPref.isUseGNSS()) useKaptureDataset[i] = false; break;
                     case RECORD_WIFI: if(!GlobalPref.isUseWiFi()) useKaptureDataset[i] = false; break;
@@ -268,13 +268,15 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         //------------------------ Image & Base file
         Image image = null;
         try {
+            image  = frame.acquireCameraImage();
             //---------- Base File
             createBaseInformation(camera.getImageIntrinsics(), image.getWidth(), image.getHeight());
             //---------- Image File
-            createImages(timestamp, frame.acquireCameraImage());
+            createImages(timestamp, image);
+
         } catch (NotYetAvailableException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             if(image != null) image.close();
         }
 

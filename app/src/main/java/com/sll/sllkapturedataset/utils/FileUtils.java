@@ -25,8 +25,8 @@ public class FileUtils {
         boolean isResult = false;
         if(file.exists()){
             if(isDelete) file.delete();
-            isResult = file.mkdir();
         }
+        isResult = file.mkdir();
         return isResult;
     }
 

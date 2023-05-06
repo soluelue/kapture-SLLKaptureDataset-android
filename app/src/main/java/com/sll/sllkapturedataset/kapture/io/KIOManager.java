@@ -42,6 +42,7 @@ public class KIOManager {
     private final String FILE_EXE = ".txt";
     private final String KAPTURE_HEADER = "# kapture format: 1.1";
 
+    private final String RECORDS_DATA_PATH = "records_data";
     private final String SUBDIR_DEPTH = "depth";
     private final String SUBDIR_IMAGES = "images";
     private final String SUBDIR_LIDAR = "pcd";
@@ -53,7 +54,8 @@ public class KIOManager {
 
     private boolean[] useKaptures;
 
-    private File recordPath;
+    private File recordPath; ///MM_dd_HH_mm_ss_SSS
+    private File recordDataPath; ///getMM_dd_HH_mm_ss_SSS/records_data
 
     private File recordSubDepthPath = null;
     private File recordSubImagesPath = null;
@@ -70,19 +72,22 @@ public class KIOManager {
     }
 
     private void createSubDirectory(){
+        //create //root/records_data
+        this.recordDataPath = new File(this.recordPath, RECORDS_DATA_PATH);
+        FileUtils.createRecordPath(this.recordDataPath);
 
-        this.recordSubImagesPath = new File(this.recordPath, SUBDIR_IMAGES);
+        this.recordSubImagesPath = new File(this.recordDataPath, SUBDIR_IMAGES);
         FileUtils.createRecordPath(this.recordSubImagesPath);
 
         // optional folder
         if(this.useKaptures[Kapture.RECORD_DEPTH.getIdx()]){
-            this.recordSubDepthPath = new File(this.recordPath, SUBDIR_DEPTH);
+            this.recordSubDepthPath = new File(this.recordDataPath, SUBDIR_DEPTH);
             FileUtils.createRecordPath(this.recordSubDepthPath);
         }
 
         // optional folder
         if(this.useKaptures[Kapture.RECORD_LIDAR.getIdx()]){
-            this.recordSubLidarPath = new File(this.recordPath, SUBDIR_LIDAR);
+            this.recordSubLidarPath = new File(this.recordDataPath, SUBDIR_LIDAR);
             FileUtils.createRecordPath(this.recordSubLidarPath);
         }
     }

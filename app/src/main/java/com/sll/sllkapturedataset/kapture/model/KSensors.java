@@ -35,6 +35,6 @@ public class KSensors extends KObject {
         stringBuilder.append(this.x); stringBuilder.append(KIOManager.SEPARATOR);
         stringBuilder.append(this.y); stringBuilder.append(KIOManager.SEPARATOR);
         stringBuilder.append(this.z);
-        return toString();
+        return stringBuilder.toString();
     }
 }

@@ -10,7 +10,7 @@ public class KTrajectory extends Trajectory {
 
     public KTrajectory(long timestamp, String deviceID, float[] translation, float[] rotationQuaternion){
         super(timestamp, translation[0], translation[1], translation[2],
-                rotationQuaternion[0], translation[1], translation[2], translation[3]);
+                rotationQuaternion[0], rotationQuaternion[1], rotationQuaternion[2], rotationQuaternion[3]);
 
         this.deviceID = deviceID;
     }
