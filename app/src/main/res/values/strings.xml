@@ -21,7 +21,7 @@
 
     <string name="sensor_gnss">Collect Gnss</string>
     <string name="sensor_lidar">Collect Lidar</string>
-    <string name="sensor_deptu">Collect Depth</string>
+    <string name="sensor_depth">Collect Depth</string>
     <string name="sensor_wifi">Collect WiFi</string>
     <string name="sensor_ble">Collect Bluetooth</string>
     <string name="sensor_accel">Collect Accelerometer</string>

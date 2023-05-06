@@ -35,7 +35,7 @@
 
         <CheckBoxPreference
             app:key="setting.kapture.depth"
-            app:title="@string/sensor_deptu"
+            app:title="@string/sensor_depth"
             app:defaultValue="true" />
 
         <CheckBoxPreference
