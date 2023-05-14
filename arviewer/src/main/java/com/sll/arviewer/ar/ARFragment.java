@@ -80,6 +80,7 @@ public class ARFragment extends Fragment implements SampleRender.Renderer {
 
     private static final String SEARCHING_PLANE_MESSAGE = "Searching for surfaces...";
     private static final String WAITING_FOR_TAP_MESSAGE = "Tap on a surface to place an object.";
+    private static final String SEARCHING_PLANE_DONE_MESSAGE = "Searching the surfaces....";
 
     private static final float Z_NEAR = 0.1f;
     private static final float Z_FAR = 100f;
@@ -448,7 +449,7 @@ public class ARFragment extends Fragment implements SampleRender.Renderer {
             }
         } else if (hasTrackingPlane()) {
             if (wrappedAnchors.isEmpty()) {
-                message = WAITING_FOR_TAP_MESSAGE;
+                message = SEARCHING_PLANE_DONE_MESSAGE;
             }
         } else {
             message = SEARCHING_PLANE_MESSAGE;

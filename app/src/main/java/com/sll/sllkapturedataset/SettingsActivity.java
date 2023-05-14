@@ -69,7 +69,7 @@ public class SettingsActivity extends AppCompatActivity {
             swShowLog.setOnPreferenceChangeListener(this);
 
             swShowDepth = (SwitchPreferenceCompat) findPreference(GlobalPref.CONFIG_SHOW_DEPTH);
-            swShowDepth.setChecked(GlobalPref.isUseDepth());
+            swShowDepth.setChecked(GlobalPref.isShowDepth());
             swShowDepth.setOnPreferenceChangeListener(this);
 
             editPcdConfidence = (EditTextPreference) findPreference(GlobalPref.CONFIG_PCD_CONFIDENCE);
@@ -129,6 +129,7 @@ public class SettingsActivity extends AppCompatActivity {
         public boolean onPreferenceChange(Preference preference, Object newValue) {
             switch (preference.getKey()){
                 case GlobalPref.CONFIG_SHOW_LOG: GlobalPref.setShowLog((boolean) newValue); break;
+                case GlobalPref.CONFIG_SHOW_DEPTH: GlobalPref.setShowDepth((boolean) newValue); break;
                 case GlobalPref.CONFIG_USE_DEPTH: GlobalPref.setUseDepth((boolean) newValue); break;
                 case GlobalPref.CONFIG_PCD_CONFIDENCE:{
                     try {

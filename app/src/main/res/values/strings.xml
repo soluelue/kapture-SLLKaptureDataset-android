@@ -4,6 +4,7 @@
     <string name="start">start</string>
     <string name="alert_change_menu">You should stop collecting.</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="main_log_collect_info">Number of data collected</string>
 
     <!-- Preference Titles -->
     <string name="setting_title_app">App Setting</string>

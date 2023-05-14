@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.hardware.SensorManager;
 import android.media.Image;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Pair;
 import android.view.View;
 import android.widget.ImageButton;
@@ -51,6 +52,9 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -68,6 +72,11 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
     private FloatingActionButton btnStart;
 
     private AtomicBoolean isStart = new AtomicBoolean(false);
+
+    //Logger
+    private HashMap<Kapture, Integer> collectLogMap = new HashMap<>();
+    private String arLogBld = "";
+    private StringBuilder dataLogBld = new StringBuilder();
 
     /// setting AR
     private ARViewModel viewModel = null;
@@ -95,6 +104,19 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         init();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // setting depth setting
+        List<Boolean> depthSettingList = new ArrayList<>();
+        depthSettingList.add(true);
+        depthSettingList.add(GlobalPref.isShowDepth());
+
+        viewModel.setDepthSettingData(depthSettingList);
+
+    }
+
     private void initPermissions(){
         Permissions.checkPermission(getApplicationContext(), this, isAllSuccess -> {
             if(isAllSuccess){
@@ -118,13 +140,13 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_ar_view, arFragment).commit();
-
     }
 
     private void initUI(){
         btnStart = findViewById(R.id.btn_start);
         btnMenu = findViewById(R.id.btn_menu);
         txtLogView = findViewById(R.id.txt_logview);
+        txtLogView.setMovementMethod(new ScrollingMovementMethod());
         txtLogView.setVisibility(GlobalPref.isShowLog() ? View.VISIBLE : View.GONE);
 
         btnStart.setOnClickListener(v -> collectController());
@@ -218,6 +240,9 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         initKaptureSetting(recordDirPath);
 
         startManager();
+
+        //change button image
+        btnStart.setImageResource(R.drawable.stop);
     }
 
     private void stopCollectDataset(){
@@ -228,6 +253,10 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         if(wiFiScanManager != null) wiFiScanManager.stop();
         if(bluetoothScanManager != null) bluetoothScanManager.stop();
         if(sensorScanManager != null) sensorScanManager.stop();
+
+        //change UI
+        btnStart.setImageResource(R.drawable.play_arrow);
+        txtLogView.setText("");
     }
 
     @Override
@@ -246,6 +275,8 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
             }break;
             default: break;
         }
+
+        collectDataLog(kapture);
     }
 
     @Override
@@ -277,7 +308,10 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         } catch (NotYetAvailableException e) {
             e.printStackTrace();
         } finally {
+            collectDataLog(Kapture.TRAJECTORIES);
+            collectDataLog(Kapture.RECORD_CAMERA);
             if(image != null) image.close();
+            showingLog();
         }
 
     }
@@ -285,8 +319,36 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
     @Override
     public void onLog(LogType logType, String message) {
         if(logType == LogType.INFO){
-            
+            this.arLogBld = message;
         }
+    }
+
+    private synchronized void collectDataLog(Kapture kapture){
+        if(collectLogMap.containsKey(kapture)){
+            int value = collectLogMap.get(kapture).intValue();
+            collectLogMap.put(kapture, value + 1);
+        }else{
+            collectLogMap.put(kapture, 0);
+        }
+    }
+
+    private synchronized void showingLog(){
+        if(!GlobalPref.isShowLog() && !isStart.get()) return;
+
+        StringBuilder msg = new StringBuilder();
+        msg.append(this.arLogBld); msg.append(System.lineSeparator());
+        msg.append(getString(R.string.main_log_collect_info)); msg.append(System.lineSeparator());
+
+        for(Kapture key : collectLogMap.keySet()){
+            String name = key.name();
+            Integer value = collectLogMap.get(key);
+            msg.append(name); msg.append(" : "); msg.append(value.toString()); msg.append(System.lineSeparator());
+        }
+
+        runOnUiThread(() -> {
+            SLLog.d(TAG,"message = " + msg.toString());
+            txtLogView.setText(msg.toString());
+        });
     }
 
     private void createBaseInformation(CameraIntrinsics cameraIntrinsics, int imageWidth, int imageHeight){
@@ -340,7 +402,7 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         File depthFile = new File(kioManager.getRecordSubDepthPath(), depthFileName);
         KIOManager.recordDepthFile(depthFile, pcdBuffer.second);
         kioManager.recordDepth(timestamp, DeviceUtils.DEVICE_DEPTH_ID, depthFileName);
-
+        collectDataLog(Kapture.RECORD_DEPTH);
 
         KPointCloud kPointCloud = KPointCloud.bufferToObject(timestamp, pcdBuffer.first, GlobalPref.getPcdConfidence());
         if(kPointCloud == null) return;
@@ -349,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
         File lidarFile = new File(kioManager.getRecordSubLidarPath(), lidarFileName);
         KIOManager.recordLidarFile(lidarFile, kPointCloud.getPcdArrays().size(), kPointCloud.toString());
         kioManager.recordLidar(timestamp, DeviceUtils.DEVICE_LIDAR_ID, lidarFileName);
-
+        collectDataLog(Kapture.RECORD_LIDAR);
     }
 
 
