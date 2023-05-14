@@ -13,6 +13,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.sll.sllkapturedataset.kapture.Kapture;
 import com.sll.sllkapturedataset.kapture.model.KWiFi;
+import com.sll.sllkapturedataset.utils.SLLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,7 @@ public class WiFiScanManager extends KaptureManager {
 
                 }
             }
+            wifiManager.startScan();
         }
     };
 
@@ -74,9 +76,11 @@ public class WiFiScanManager extends KaptureManager {
             KWiFi kWiFi = new KWiFi(getCurrentTimestamp(), getDeviceID()
                     , bssid, frequency, rssi, ssid, startScanTime, endScanTime);
             wifiList.add(kWiFi);
+            SLLog.d("frank wifi test","scan wifi -------- " + kWiFi.toString());
         }
 
         getListener().onResult(Kapture.RECORD_WIFI, wifiList);
+
     }
 
     @Override

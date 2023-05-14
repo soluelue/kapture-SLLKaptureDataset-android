@@ -27,6 +27,7 @@ import com.google.ar.core.Trackable;
 import com.google.ar.core.TrackingFailureReason;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
+import com.google.ar.core.exceptions.NotTrackingException;
 import com.google.ar.core.exceptions.NotYetAvailableException;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
@@ -405,7 +406,7 @@ public class ARFragment extends Fragment implements SampleRender.Renderer {
             frame = session.update();
             frameUpdateListener.onUpdate(frame);
 
-        } catch (CameraNotAvailableException e) {
+        } catch (CameraNotAvailableException | NotTrackingException e) {
             Log.e(TAG, "Camera not available during onDrawFrame", e);
             return;
         }

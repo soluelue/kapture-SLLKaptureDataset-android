@@ -219,6 +219,10 @@ public class KIOManager {
         records(Kapture.RECORD_WIFI, str);
     }
 
+    public void recordBLE(@NonNull String str){
+        records(Kapture.RECORD_BLE, str);
+    }
+
     public void recordPositionQueryMap(@NonNull String str){
         records(Kapture.POSITION_QUERY_MAP, str);
     }

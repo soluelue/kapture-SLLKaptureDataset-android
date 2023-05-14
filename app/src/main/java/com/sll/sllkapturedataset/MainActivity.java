@@ -30,6 +30,7 @@ import com.sll.estimation.utils.Permissions;
 import com.sll.sllkapturedataset.kapture.Kapture;
 import com.sll.sllkapturedataset.kapture.io.GlobalPref;
 import com.sll.sllkapturedataset.kapture.io.KIOManager;
+import com.sll.sllkapturedataset.kapture.model.KBluetooth;
 import com.sll.sllkapturedataset.kapture.model.KGnss;
 import com.sll.sllkapturedataset.kapture.model.KPointCloud;
 import com.sll.sllkapturedataset.kapture.model.KSensors;
@@ -74,9 +75,9 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
     private AtomicBoolean isStart = new AtomicBoolean(false);
 
     //Logger
+    private long startTimestamp = 0L;
     private HashMap<Kapture, Integer> collectLogMap = new HashMap<>();
     private String arLogBld = "";
-    private StringBuilder dataLogBld = new StringBuilder();
 
     /// setting AR
     private ARViewModel viewModel = null;
@@ -225,6 +226,7 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
             stopCollectDataset();
             isStart.set(false);
         } else {
+            startTimestamp = System.currentTimeMillis();
             isStart.set(true);
             startCollectDataset();
         }
@@ -262,11 +264,13 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
     @Override
     public void onResult(Kapture kapture, Object object) {
         if(kioManager == null) return;
+        collectDataLog(kapture);
         switch (kapture){
             case RECORD_GNSS: kioManager.recordGNSS(((KGnss)object).toString()); break;
             case RECORD_ACCEL: kioManager.recordAccel(((KSensors)object).toString()); break;
             case RECORD_MAG: kioManager.recordMag(((KSensors)object).toString()); break;
             case RECORD_GYRO: kioManager.recordGyro(((KSensors)object).toString()); break;
+            case RECORD_BLE: kioManager.recordBLE(((KBluetooth)object).toString()); break;
             case RECORD_WIFI:{
                 ArrayList<KWiFi> wifiList = (ArrayList<KWiFi>) object;
                 for(KWiFi wifi: wifiList){
@@ -275,8 +279,6 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
             }break;
             default: break;
         }
-
-        collectDataLog(kapture);
     }
 
     @Override
@@ -337,12 +339,17 @@ public class MainActivity extends AppCompatActivity implements OnUpdateListener,
 
         StringBuilder msg = new StringBuilder();
         msg.append(this.arLogBld); msg.append(System.lineSeparator());
-        msg.append(getString(R.string.main_log_collect_info)); msg.append(System.lineSeparator());
+        msg.append(getString(R.string.main_log_collect_info));
+        msg.append("\t");
+        msg.append(DateUtils.getMMCSS(startTimestamp));
 
+        int tabNum = 0;
         for(Kapture key : collectLogMap.keySet()){
-            String name = key.name();
+            if(tabNum % 5 == 0) msg.append(System.lineSeparator());
+            String name = key.getShortName();
             Integer value = collectLogMap.get(key);
-            msg.append(name); msg.append(" : "); msg.append(value.toString()); msg.append(System.lineSeparator());
+            msg.append(name); msg.append(" : "); msg.append(value.toString()); msg.append("\t");
+            tabNum ++;
         }
 
         runOnUiThread(() -> {
